@@ -251,7 +251,7 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
 .f-top .l i{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s ease infinite}
 @keyframes pulse{50%{opacity:.3}}
 .f-clock{font-size:15px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
-.f-body{flex:1;width:100%;max-width:760px;margin:0 auto;padding:10px 24px 40px;display:flex;flex-direction:column}
+.f-body{flex:1;width:100%;max-width:1120px;margin:0 auto;padding:10px 24px 40px;display:flex;flex-direction:column}
 .f-hero{text-align:center;margin:18px 0 34px}
 .f-hero h1{font-size:62px}
 .f-hero p{color:var(--muted);margin-top:8px;font-size:15px}
@@ -267,6 +267,19 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
 .f-item.now .kind{color:var(--accent)}
 .f-item.leaving{opacity:0;transform:translateX(30px)}
 .f-item .txt{flex:1;min-width:0;word-break:break-word}
+.f-cols{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:26px;align-items:start}
+.f-cols.one{grid-template-columns:minmax(0,1fr);max-width:760px;margin:0 auto;width:100%}
+.f-col{display:flex;flex-direction:column;min-width:0}
+.f-colh{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:0 6px 12px}
+.f-colh b{font-size:12.5px;background:var(--surface2);padding:2px 10px;border-radius:99px;color:var(--text);letter-spacing:0}
+.f-col.rot .f-colh span{color:var(--ok)}
+.f-col.rot .f-item{font-size:17px;padding:16px 18px}
+.f-col.rot .f-item.now{font-size:22px;padding:24px 22px;border-color:var(--ok);background:linear-gradient(135deg,var(--ok-soft),transparent 60%),var(--surface)}
+.f-col.rot .f-item.now .kind{color:var(--ok)}
+.f-item.isdone{opacity:.5}
+.f-item.isdone .txt{text-decoration:line-through}
+.f-col.rot .f-item.isdone{padding:12px 18px;font-size:15px}
+.f-ok{text-align:center;color:var(--ok);font-weight:700;padding:20px;border:1px dashed var(--line2);border-radius:18px}
 .f-done{margin-top:26px}
 .f-done summary{cursor:pointer;color:var(--muted);font-weight:700;font-size:13px;list-style:none;text-align:center;text-transform:uppercase;letter-spacing:.08em}
 .f-done summary::-webkit-details-marker{display:none}
@@ -361,6 +374,7 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
   .ritem{flex-wrap:wrap}
   .ritem .t{flex-basis:calc(100% - 60px)}
   .f-hero h1{font-size:44px}
+  .f-cols{grid-template-columns:1fr}
   .f-item{font-size:17px;padding:16px}
   .f-item.now{font-size:20px;padding:20px}
   .f-top{padding:16px}
@@ -1033,12 +1047,25 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
     var h='<div class="f-hero"><h1>'+(open.length?(open.length===1?"Só mais <em style=\"color:var(--accent)\">uma</em>":"<em style=\"color:var(--accent)\">"+open.length+"</em> coisas"):"Pronto")+'</h1>'+
       '<p>'+(k===todayKey()?"Hoje":fmtDay(k))+' · '+done.length+' de '+items.length+' concluídas</p>'+
       '<div class="f-prog"><i style="width:'+(pct*100)+'%"></i></div></div>';
+    function fItem(x,now){return '<button class="f-item'+(now?' now':'')+(x.done?' isdone':'')+'" data-fid="'+x.id+'" data-ft="'+x.type+'"><span class="chk'+(x.done?' on':'')+'">'+ICON.check+'</span><span class="txt">'+esc(x.title)+'</span>'+(now?'<span class="kind">agora</span>':'')+'</button>'}
+    var tOpen=open.filter(function(x){return x.type==="t"}),rOpenL=open.filter(function(x){return x.type==="r"});
+    var tDone=done.filter(function(x){return x.type==="t"}),rDoneL=done.filter(function(x){return x.type==="r"});
     if(!items.length)h+='<div class="f-clear"><div class="big">📝</div><h2>Nenhuma tarefa ainda</h2><p>Anota as tarefas do dia e volta aqui.</p></div>';
     else if(!open.length)h+='<div class="f-clear"><div class="big">🎉</div><h2>Tudo feito.</h2><p>Dia zerado. Descansa que você merece.</p></div>';
-    else h+='<div class="f-list">'+open.map(function(x,i){
-      return '<button class="f-item'+(i===0?' now':'')+'" data-fid="'+x.id+'" data-ft="'+x.type+'"><span class="chk">'+ICON.check+'</span><span class="txt">'+esc(x.title)+'</span><span class="kind">'+(i===0?"agora":x.kind)+'</span></button>';
-    }).join("")+'</div>';
-    if(done.length)h+='<details class="f-done"'+(fDoneOpen?' open':'')+'><summary>Concluídas · '+done.length+'</summary>'+done.map(function(x){return '<button class="f-item" data-fid="'+x.id+'" data-ft="'+x.type+'"><span class="chk on">'+ICON.check+'</span><span class="txt">'+esc(x.title)+'</span><span class="kind">'+x.kind+'</span></button>'}).join("")+'</details>';
+    if(items.length&&open.length){
+      h+='<div class="f-cols'+(rs.length&&ts.length?'':' one')+'">';
+      if(ts.length){
+        h+='<div class="f-col"><div class="f-colh"><span>Tarefas</span><b>'+tDone.length+'/'+ts.length+'</b></div><div class="f-list">'+
+          (tOpen.length?tOpen.map(function(x,i){return fItem(x,i===0)}).join(""):'<div class="f-ok">Tarefas zeradas ✓</div>')+'</div>'+
+          (tDone.length?'<details class="f-done"'+(fDoneOpen?' open':'')+'><summary>Concluídas · '+tDone.length+'</summary>'+tDone.map(function(x){return fItem(x)}).join("")+'</details>':'')+'</div>';
+      }
+      if(rs.length){
+        h+='<div class="f-col rot"><div class="f-colh"><span>Rotina de hoje</span><b>'+rDoneL.length+'/'+rs.length+'</b></div><div class="f-list">'+
+          rOpenL.map(function(x,i){return fItem(x,!tOpen.length&&i===0)}).join("")+rDoneL.map(function(x){return fItem(x)}).join("")+
+          (!rOpenL.length?'<div class="f-ok">Rotina completa ✓</div>':'')+'</div></div>';
+      }
+      h+='</div>';
+    }
     $("#fBody").innerHTML=h;
     var w=water(k),g=goalOf(k);
     $("#fBottom").innerHTML=
@@ -1064,7 +1091,7 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
   $("#fBody").addEventListener("click",function(e){
     var it=e.target.closest(".f-item");if(!it)return;
     var id=it.dataset.fid,type=it.dataset.ft,k=focusDay;
-    var isOpen=!it.closest(".f-done");
+    var isOpen=!it.classList.contains("isdone");
     function doit(){if(type==="t")toggleTask(id);else toggleRoutine(k,id)}
     if(isOpen){it.classList.add("leaving");setTimeout(doit,260)}else doit();
   });
