@@ -37,6 +37,7 @@
   color-scheme:light;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 html,body{height:100%}
 body{background:var(--bg);color:var(--text);font-family:"Plus Jakarta Sans",system-ui,sans-serif;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -297,9 +298,47 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
 .spinner{width:28px;height:28px;border-radius:50%;border:3px solid var(--surface3);border-top-color:var(--accent);animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* ---------- notes / vault ---------- */
+.nav .notesbtn{margin-top:4px}
+.lockcard{max-width:420px;margin:40px auto 0;text-align:center;padding:40px 30px 34px}
+.lockcard .lk{width:58px;height:58px;border-radius:18px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin:0 auto 18px}
+.lockcard h2{font-family:"Instrument Serif",serif;font-weight:400;font-size:32px;letter-spacing:-.01em}
+.lockcard p{color:var(--muted);font-size:14px;margin-top:6px}
+.pin{margin:26px auto 0;position:relative;width:282px;height:56px}
+.pin input{position:absolute;inset:0;opacity:0;width:100%;height:100%;font-size:16px;cursor:pointer}
+.pin .boxes{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;pointer-events:none}
+.pin .boxes i{height:56px;border-radius:14px;background:var(--surface2);border:1.5px solid transparent;display:grid;place-items:center;transition:border-color .15s,background .15s}
+.pin .boxes i.f::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--text)}
+.pin.focus .boxes i.cur{border-color:var(--accent)}
+.pin.err .boxes{animation:shake .4s}
+.pin.err .boxes i{border-color:var(--danger)}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.lockmsg{min-height:22px;margin-top:14px;font-size:13.5px;font-weight:600;color:var(--danger)}
+.lockmsg.info{color:var(--muted)}
+.notes-wrap{display:grid;grid-template-columns:320px minmax(0,1fr);gap:20px;align-items:start}
+.nlist-card{padding:14px;display:flex;flex-direction:column;gap:8px}
+.nlist{display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 290px);overflow:auto}
+.nitem{padding:12px 12px;border-radius:12px;cursor:pointer;transition:background .15s;min-width:0}
+.nitem:hover{background:var(--surface2)}
+.nitem.on{background:var(--accent-soft)}
+.nitem b{display:block;font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nitem span{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.neditor{display:flex;flex-direction:column;gap:12px;min-height:420px}
+.neditor .ntitle{font-size:26px;font-weight:700;letter-spacing:-.02em;background:none;border:0;outline:0;width:100%}
+.neditor .ntitle::placeholder,.neditor textarea::placeholder{color:var(--faint)}
+.neditor textarea{flex:1;min-height:360px;resize:vertical;background:var(--surface2);border:1px solid transparent;border-radius:14px;padding:16px;outline:0;font:inherit;font-size:15px;line-height:1.6;color:var(--text)}
+.neditor textarea:focus{border-color:var(--accent)}
+.nbar{display:flex;align-items:center;gap:8px}
+.nbar .saved{font-size:12.5px;color:var(--faint);font-weight:600;margin-right:auto;display:flex;align-items:center;gap:6px}
+.nbar .pill{height:34px;font-size:13px}
+.nbar .pill.del:hover{color:var(--danger);border-color:var(--danger)}
+.nempty{margin:auto;text-align:center;color:var(--muted)}
+.nempty b{display:block;color:var(--text);font-size:17px;margin-bottom:4px}
+
 /* ---------- responsive ---------- */
 @media (max-width:1100px){
-  .daygrid,.monthwrap{grid-template-columns:1fr}
+  .daygrid,.monthwrap,.notes-wrap{grid-template-columns:1fr}
+  .nlist{max-height:260px}
 }
 @media (max-width:820px){
   .app{grid-template-columns:1fr;grid-template-rows:1fr auto}
@@ -342,6 +381,7 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
       <button data-view="month"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>Mês<span class="kbd">M</span></button>
       <button data-view="routine"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>Rotina diária<span class="kbd">R</span></button>
       <button class="focusbtn" data-act="focus"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>Modo foco<span class="kbd">F</span></button>
+      <button class="notesbtn" data-view="notes"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="11" rx="3"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/><circle cx="12" cy="16" r="1.3" fill="currentColor"/></svg>Anotações<span class="kbd">A</span></button>
     </nav>
     <div class="sidecard" id="sideStats"></div>
     <div class="side-foot">
@@ -424,6 +464,35 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
             <div class="stats" id="mStats" style="margin-top:0"></div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- NOTES -->
+    <section class="view" id="v-notes">
+      <div class="head">
+        <div>
+          <div class="eyebrow">Cofre</div>
+          <h1>Anotações <em>protegidas</em></h1>
+        </div>
+        <div class="pager"><button class="pill" id="nLock" hidden><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="11" rx="3"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>Bloquear</button></div>
+      </div>
+      <div class="card lockcard" id="nLocked">
+        <div class="lk"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="11" rx="3"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/><circle cx="12" cy="16" r="1.3" fill="currentColor"/></svg></div>
+        <h2 id="lkTitle">Digite sua senha</h2>
+        <p id="lkSub">Suas anotações ficam criptografadas.</p>
+        <div class="pin" id="pin"><input id="pinInput" type="password" inputmode="numeric" autocomplete="off" maxlength="6" aria-label="Senha de 6 dígitos"><div class="boxes"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <div class="lockmsg" id="lkMsg"></div>
+      </div>
+      <div class="notes-wrap" id="nOpen" hidden>
+        <div class="card nlist-card">
+          <button class="pill primary" id="nNew" style="justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nova anotação</button>
+          <form class="add" id="nSearchForm" autocomplete="off" style="margin:0;height:42px" onsubmit="return false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input id="nSearch" placeholder="Buscar…">
+          </form>
+          <ul class="nlist" id="nList"></ul>
+        </div>
+        <div class="card neditor" id="nEditor"></div>
       </div>
     </section>
 
@@ -643,9 +712,10 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
     if(S.view==="day")renderDay();
     if(S.view==="month")renderMonth();
     if(S.view==="routine")renderRoutine();
+    if(S.view==="notes")renderNotes();
     if(focusOn)renderFocus();
   }
-  function go(v){S.view=v;try{localStorage.setItem("md_view",v)}catch(e){}render();$("#main").scrollTop=0}
+  function go(v){if(S.view==="notes"&&v!=="notes")lockVault();S.view=v;try{localStorage.setItem("md_view",v)}catch(e){}render();$("#main").scrollTop=0}
 
   /* ---------- sidebar ---------- */
   function renderSide(){
@@ -799,6 +869,154 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
       '</li>';
     }).join("");
   }
+
+  /* ---------- notes vault (criptografado no navegador, AES-GCM + PBKDF2) ---------- */
+  var V={meta:undefined,raw:{},dec:{},key:null,sel:null,edId:null,setupPin:null,fails:0,waitUntil:0,idleT:null,busy:false};
+  C.vmeta=db.collection("todo_vault").doc("meta");C.vnotes=db.collection("todo_vault_notes");
+  var TE=new TextEncoder(),TD=new TextDecoder();
+  function b64(buf){var s="",b=new Uint8Array(buf);for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s)}
+  function unb64(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
+  async function deriveKey(pin,salt,iter){
+    var base=await crypto.subtle.importKey("raw",TE.encode(pin),"PBKDF2",false,["deriveKey"]);
+    return crypto.subtle.deriveKey({name:"PBKDF2",salt:salt,iterations:iter,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+  }
+  async function encryptObj(key,obj){var iv=crypto.getRandomValues(new Uint8Array(12));var c=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},key,TE.encode(JSON.stringify(obj)));return {iv:b64(iv),data:b64(c)}}
+  async function decryptObj(key,o){var p=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(o.iv)},key,unb64(o.data));return JSON.parse(TD.decode(p))}
+
+  C.vmeta.onSnapshot(function(d){V.meta=d.exists?d.data():null;if(S.view==="notes")renderNotes()});
+  C.vnotes.onSnapshot(function(snap){
+    var o={};snap.forEach(function(d){o[d.id]=Object.assign({id:d.id},d.data())});V.raw=o;
+    if(V.key)decryptAll().then(function(){if(S.view==="notes")renderNotes()});
+  });
+  async function decryptAll(){
+    var key=V.key;
+    for(var id in V.dec)if(!V.raw[id])delete V.dec[id];
+    for(var id2 in V.raw){
+      var r=V.raw[id2],c=V.dec[id2];
+      if(c&&c._data===r.data)continue;
+      try{var obj=await decryptObj(key,r);if(V.key!==key)return;obj._data=r.data;obj.updatedAt=r.updatedAt;V.dec[id2]=obj;
+        if(id2===V.sel&&c)syncEditorFromRemote(id2)}catch(e){}
+    }
+  }
+  function lockVault(){V.key=null;V.dec={};V.sel=null;V.edId=null;clearTimeout(V.idleT)}
+  function bumpIdle(){if(!V.key)return;clearTimeout(V.idleT);V.idleT=setTimeout(function(){flushSave();lockVault();if(S.view==="notes")renderNotes();toast("Anotações bloqueadas por inatividade")},5*60*1000)}
+
+  function pinState(msg,info){
+    var v=$("#pinInput").value,boxes=document.querySelectorAll("#pin .boxes i");
+    boxes.forEach(function(b,i){b.classList.toggle("f",i<v.length);b.classList.toggle("cur",i===Math.min(v.length,5))});
+    if(msg!==undefined){var m=$("#lkMsg");m.textContent=msg;m.className="lockmsg"+(info?" info":"")}
+  }
+  function pinError(msg){var p=$("#pin");p.classList.remove("err");void p.offsetWidth;p.classList.add("err");$("#pinInput").value="";pinState(msg)}
+  async function submitPin(pin){
+    if(V.busy)return;
+    if(Date.now()<V.waitUntil){pinError("Muitas tentativas. Espera "+Math.ceil((V.waitUntil-Date.now())/1000)+"s.");return}
+    V.busy=true;pinState("Abrindo…",true);
+    try{
+      if(!V.meta){ // primeira vez: criar senha
+        if(!V.setupPin){V.setupPin=pin;$("#pinInput").value="";renderLock();V.busy=false;return}
+        if(V.setupPin!==pin){V.setupPin=null;renderLock();pinError("As senhas não bateram. Tenta de novo.");V.busy=false;return}
+        var salt=crypto.getRandomValues(new Uint8Array(16)),iter=600000;
+        var key=await deriveKey(pin,salt,iter),check=await encryptObj(key,{ok:1});
+        await C.vmeta.set({salt:b64(salt),iter:iter,check:check,createdAt:Date.now()});
+        V.meta={salt:b64(salt),iter:iter,check:check};V.setupPin=null;V.key=key;
+      }else{
+        var k2=await deriveKey(pin,unb64(V.meta.salt),V.meta.iter||600000);
+        try{await decryptObj(k2,V.meta.check)}catch(e){
+          V.fails++;if(V.fails>=5){V.waitUntil=Date.now()+30000;V.fails=0}
+          V.busy=false;pinError("Senha errada.");return;
+        }
+        V.fails=0;V.key=k2;
+      }
+      $("#pinInput").value="";pinState("");
+      await decryptAll();bumpIdle();
+      var ids=sortedNotes().map(function(n){return n.id});V.sel=ids[0]||null;V.edId=null;
+      renderNotes();
+    }catch(e){console.error(e);pinError("Erro: "+(e.message||e))}
+    V.busy=false;
+  }
+  function renderLock(){
+    var setup=!V.meta;
+    $("#lkTitle").textContent=setup?(V.setupPin?"Confirme a senha":"Crie sua senha"):"Digite sua senha";
+    $("#lkSub").textContent=setup?(V.setupPin?"Digite os mesmos 6 números de novo.":"Escolha 6 números. Ela protege e criptografa suas anotações."):"Suas anotações ficam criptografadas.";
+    pinState();
+  }
+  function sortedNotes(){
+    return Object.keys(V.dec).map(function(id){return Object.assign({id:id},V.dec[id])})
+      .sort(function(a,b){return (b.updatedAt||0)-(a.updatedAt||0)});
+  }
+  function fmtWhen(ts){if(!ts)return"";var d=new Date(ts),k=key(d);if(k===todayKey())return pad(d.getHours())+":"+pad(d.getMinutes());return fmtShort(k)}
+  function renderNotes(){
+    if(V.meta===undefined){$("#nLocked").hidden=false;$("#nOpen").hidden=true;$("#lkTitle").textContent="Carregando…";return}
+    var open=!!V.key;
+    $("#nLocked").hidden=open;$("#nOpen").hidden=!open;$("#nLock").hidden=!open;
+    if(!open){renderLock();if(S.view==="notes"&&!focusOn&&document.activeElement!==$("#pinInput"))setTimeout(function(){$("#pinInput").focus();$("#pin").classList.add("focus")},50);return}
+    var q=$("#nSearch").value.trim().toLowerCase();
+    var list=sortedNotes().filter(function(n){return !q||((n.title||"")+" "+(n.body||"")).toLowerCase().indexOf(q)>-1});
+    $("#nList").innerHTML=list.length?list.map(function(n){
+      var first=(n.body||"").split("\n").find(function(l){return l.trim()})||"Sem conteúdo";
+      return '<li class="nitem'+(n.id===V.sel?' on':'')+'" data-nid="'+n.id+'"><b>'+esc(n.title||"Sem título")+'</b><span>'+esc(fmtWhen(n.updatedAt))+' · '+esc(first)+'</span></li>';
+    }).join(""):'<li class="empty">'+(q?"Nada encontrado.":"Nenhuma anotação ainda.")+'</li>';
+    if(V.sel&&!V.dec[V.sel])V.sel=null;
+    if(V.edId!==V.sel)renderEditor();
+  }
+  function renderEditor(){
+    V.edId=V.sel;var el=$("#nEditor");
+    if(!V.sel){el.innerHTML='<div class="nempty"><b>Guarde o que precisar aqui</b>Senhas, logins, dados de contas, números…<br>Clique em “Nova anotação”.</div>';return}
+    var n=V.dec[V.sel];
+    el.innerHTML='<div class="nbar"><span class="saved" id="nSaved">'+(n.updatedAt?"Salvo · "+fmtWhen(n.updatedAt):"")+'</span>'+
+      '<button class="pill" data-na="copy">Copiar texto</button><button class="pill del" data-na="del">'+ICON.trash+'Apagar</button></div>'+
+      '<input class="ntitle" id="nTitle" placeholder="Título" maxlength="120">'+
+      '<textarea id="nBody" placeholder="Escreva aqui… (ex.: e-mail, senha, conta, observações)" spellcheck="false"></textarea>';
+    $("#nTitle").value=n.title||"";$("#nBody").value=n.body||"";
+  }
+  function syncEditorFromRemote(id){
+    var n=V.dec[id],t=$("#nTitle"),b=$("#nBody");if(!t||!b)return;
+    if(document.activeElement!==t)t.value=n.title||"";
+    if(document.activeElement!==b)b.value=n.body||"";
+  }
+  var saveT=null,saveId=null;
+  function queueSave(){
+    var id=V.sel;if(!id||!V.key)return;
+    V.dec[id].title=$("#nTitle").value;V.dec[id].body=$("#nBody").value;
+    $("#nSaved").textContent="Salvando…";saveId=id;clearTimeout(saveT);saveT=setTimeout(flushSave,600);bumpIdle();
+  }
+  async function flushSave(){
+    clearTimeout(saveT);var id=saveId;saveId=null;if(!id||!V.key||!V.dec[id])return;
+    var n=V.dec[id],now=Date.now(),payload=await encryptObj(V.key,{title:n.title||"",body:n.body||""});
+    n._data=payload.data;n.updatedAt=now;
+    await C.vnotes.doc(id).set({iv:payload.iv,data:payload.data,updatedAt:now});
+    var s=$("#nSaved");if(s&&V.sel===id)s.textContent="Salvo · "+fmtWhen(now);
+    var li=document.querySelector('.nitem[data-nid="'+id+'"]');
+    if(li){var first=(n.body||"").split("\n").find(function(l){return l.trim()})||"Sem conteúdo";li.innerHTML='<b>'+esc(n.title||"Sem título")+'</b><span>'+esc(fmtWhen(now))+' · '+esc(first)+'</span>'}
+  }
+  $("#pinInput").addEventListener("input",function(){this.value=this.value.replace(/\D/g,"").slice(0,6);$("#pin").classList.remove("err");pinState("");if(this.value.length===6)submitPin(this.value)});
+  $("#pinInput").addEventListener("focus",function(){$("#pin").classList.add("focus")});
+  $("#pinInput").addEventListener("blur",function(){$("#pin").classList.remove("focus")});
+  $("#nLock").onclick=function(){flushSave();lockVault();renderNotes()};
+  $("#nSearch").addEventListener("input",function(){renderNotes();bumpIdle()});
+  $("#nNew").onclick=async function(){
+    if(!V.key)return;await flushSave();
+    var ref=C.vnotes.doc(),now=Date.now();
+    V.dec[ref.id]={title:"",body:"",updatedAt:now};V.sel=ref.id;V.edId=null;$("#nSearch").value="";
+    renderNotes();$("#nTitle").focus();
+    var p=await encryptObj(V.key,{title:"",body:""});V.dec[ref.id]._data=p.data;
+    ref.set({iv:p.iv,data:p.data,updatedAt:now});bumpIdle();
+  };
+  $("#nList").addEventListener("click",async function(e){
+    var li=e.target.closest("[data-nid]");if(!li)return;await flushSave();V.sel=li.dataset.nid;renderNotes();bumpIdle();
+  });
+  $("#nEditor").addEventListener("input",function(e){if(e.target.id==="nTitle"||e.target.id==="nBody")queueSave()});
+  $("#nEditor").addEventListener("click",function(e){
+    var b=e.target.closest("[data-na]");if(!b||!V.sel)return;var id=V.sel;bumpIdle();
+    if(b.dataset.na==="copy"){navigator.clipboard.writeText(V.dec[id].body||"").then(function(){toast("Texto copiado")})}
+    if(b.dataset.na==="del"){
+      if(!confirm('Apagar a anotação "'+(V.dec[id].title||"Sem título")+'"? Não dá pra desfazer.'))return;
+      clearTimeout(saveT);saveId=null;delete V.dec[id];V.sel=null;C.vnotes.doc(id).delete();
+      var rest=sortedNotes();V.sel=rest[0]?rest[0].id:null;renderNotes();
+    }
+  });
+  document.addEventListener("keydown",function(){if(S.view==="notes")bumpIdle()},true);
+  window.addEventListener("beforeunload",function(){if(saveId)flushSave()});
 
   /* ---------- focus ---------- */
   var focusOn=false,leaving={};
@@ -969,6 +1187,7 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
     if(k==="h"){S.cur=todayKey();go("day")}
     if(k==="m"){S.month=monthKey(S.cur);go("month")}
     if(k==="r")go("routine");
+    if(k==="a")go("notes");
     if(k==="n"&&S.view==="day"){e.preventDefault();$("#dAdd").focus()}
     if(S.view==="day"&&e.key==="ArrowLeft")$("#dPrev").click();
     if(S.view==="day"&&e.key==="ArrowRight")$("#dNext").click();
