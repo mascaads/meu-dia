@@ -84,6 +84,9 @@ main{overflow:auto;min-height:0;position:relative}
 .eyebrow.past{color:var(--muted)}
 h1{font-size:44px;line-height:1.05;font-family:"Instrument Serif",serif;font-weight:400;letter-spacing:-.01em}
 h1 em{color:var(--muted);font-style:italic}
+.titlerow{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+.nowclock{font-size:30px;font-weight:700;letter-spacing:-.02em;color:var(--accent);font-variant-numeric:tabular-nums;display:inline-flex;align-items:baseline;gap:8px}
+.nowclock small{font-size:12px;font-weight:700;color:var(--faint);letter-spacing:.06em;text-transform:uppercase}
 h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
 .sub{color:var(--muted);margin-top:6px;font-size:14px}
 .pager{display:flex;align-items:center;gap:6px}
@@ -410,7 +413,7 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
       <div class="head">
         <div>
           <div class="eyebrow" id="dEyebrow">Hoje</div>
-          <h1 id="dTitle"></h1>
+          <div class="titlerow"><h1 id="dTitle"></h1><span class="nowclock" id="nowClock" title="Horário de Salvador (BA)"></span></div>
         </div>
         <div class="pager">
           <button class="pill sq" id="dPrev" title="Dia anterior"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
@@ -1229,6 +1232,11 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
   var theme="dark";try{theme=localStorage.getItem("md_theme")||"dark"}catch(e){}
   applyTheme(theme);
   $("#themeBtn").onclick=function(){theme=theme==="light"?"dark":"light";try{localStorage.setItem("md_theme",theme)}catch(e){}applyTheme(theme)};
+
+  // relógio ao lado da data (horário de Salvador)
+  var clockFmt=new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Bahia",hour:"2-digit",minute:"2-digit"});
+  function tickClock(){$("#nowClock").innerHTML=clockFmt.format(new Date())+'<small>Salvador</small>'}
+  tickClock();setInterval(tickClock,5000);
 
   // virar o dia sozinho se o site ficar aberto de madrugada
   var lastToday=todayKey();
