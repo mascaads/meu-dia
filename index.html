@@ -280,6 +280,9 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
 .f-col.rot .f-item{font-size:17px;padding:16px 18px}
 .f-col.rot .f-item.now{font-size:22px;padding:24px 22px;border-color:var(--ok);background:linear-gradient(135deg,var(--ok-soft),transparent 60%),var(--surface)}
 .f-col.rot .f-item.now .kind{color:var(--ok)}
+.f-item[draggable="true"]{cursor:grab}
+.f-item.drag{opacity:.35}
+.f-item.over{box-shadow:0 -3px 0 var(--accent)}
 .f-item.isdone{opacity:.5}
 .f-item.isdone .txt{text-decoration:line-through}
 .f-col.rot .f-item.isdone{padding:12px 18px;font-size:15px}
@@ -1057,7 +1060,7 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
     var h='<div class="f-hero"><h1>'+(open.length?(open.length===1?"Só mais <em style=\"color:var(--accent)\">uma</em>":"<em style=\"color:var(--accent)\">"+open.length+"</em> coisas"):"Pronto")+'</h1>'+
       '<p>'+(k===todayKey()?"Hoje":fmtDay(k))+' · '+done.length+' de '+items.length+' concluídas</p>'+
       '<div class="f-prog"><i style="width:'+(pct*100)+'%"></i></div></div>';
-    function fItem(x,now){return '<button class="f-item'+(now?' now':'')+(x.done?' isdone':'')+'" data-fid="'+x.id+'" data-ft="'+x.type+'"><span class="chk'+(x.done?' on':'')+'">'+ICON.check+'</span><span class="txt">'+esc(x.title)+'</span>'+(now?'<span class="kind">agora</span>':'')+'</button>'}
+    function fItem(x,now){return '<button class="f-item'+(now?' now':'')+(x.done?' isdone':'')+'" data-fid="'+x.id+'" data-ft="'+x.type+'"'+(x.done?'':' draggable="true"')+'><span class="chk'+(x.done?' on':'')+'">'+ICON.check+'</span><span class="txt">'+esc(x.title)+'</span>'+(now?'<span class="kind">agora</span>':'')+'</button>'}
     var tOpen=open.filter(function(x){return x.type==="t"}),rOpenL=open.filter(function(x){return x.type==="r"});
     var tDone=done.filter(function(x){return x.type==="t"}),rDoneL=done.filter(function(x){return x.type==="r"});
     if(!items.length)h+='<div class="f-clear"><div class="big">📝</div><h2>Nenhuma tarefa ainda</h2><p>Anota as tarefas do dia e volta aqui.</p></div>';
@@ -1175,12 +1178,17 @@ h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
       var li=e.target.closest("["+attr+"]");if(!li||!dragId)return;e.preventDefault();
       var target=li.getAttribute(attr);if(target===dragId)return;
       var list=getList().filter(function(x){return x.id!==dragId}),idx=list.findIndex(function(x){return x.id===target});
+      if(idx<0)return;
       var prev=idx>0?list[idx-1].order||0:(list[idx].order||0)-2000,nxt=list[idx].order||0;
       patch(dragId,{order:(prev+nxt)/2});
     });
   }
   dndList("#dList",function(){return tasksOn(S.cur).filter(function(x){return !x.done})},patchTask,"data-id");
   dndList("#rList",routineAll,patchRoutine,"data-rid");
+  // foco: arrasta dentro da mesma coluna (tarefa com tarefa, rotina com rotina)
+  dndList("#fBody",function(){
+    return S.tasks[dragId]?tasksOn(focusDay).filter(function(x){return !x.done}):routineOn(focusDay).filter(function(r){return !rDone(focusDay,r.id)});
+  },function(id,p){S.tasks[id]?patchTask(id,p):patchRoutine(id,p)},"data-fid");
 
   // routine page
   $("#rList").addEventListener("click",function(e){
